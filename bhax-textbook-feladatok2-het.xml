@@ -1,0 +1,149 @@
+<chapter xmlns="http://docbook.org/ns/docbook" xmlns:xlink="http://www.w3.org/1999/xlink" xmlns:xi="http://www.w3.org/2001/XInclude" version="5.0" xml:lang="hu">
+    <info>
+        <title>Helló, !</title>
+        <keywordset>
+            <keyword/>
+        </keywordset>
+    </info>
+
+    <section>
+        <title>FUTURE tevékenység editor</title>
+        <para>
+		Javítsunk valamit a ActivityEditor.java JavaFX programon!
+https://github.com/nbatfai/future/tree/master/cs/F6
+Itt láthatjuk működésben az alapot: https://www.twitch.tv/videos/222879467
+        </para>
+        <para>
+            Mentorom ennél a feladatnál : Mester Ákos
+        </para>
+        <para>
+            Ebben a feladatban módosítanunk kell valamit az adott programban.
+            A jelenlegi programban a jobb klikk lenyomásával vagy egy új tevékenység jön létre vagy pedig egy props fájl.
+            Mivel ez nem a legmegfelelőbb nekünk ezért erre írt(am) egyfajta megoldást.
+            A CTRL + B kombinációkombóra egy új mappa létrehozását hozunk létre.
+            </para>
+             <programlisting language="C++"><![CDATA[
+             javafx.scene.Scene scene = FileTree.this.getScene();
+
+    KeyCombination kc1 = new KeyCodeCombination(KeyCode.B, KeyCombination. ←-
+        CONTROL_DOWN);
+    Runnable rn1 = ()-> {
+        System.out.println("Ctrl B");
+        javafx.scene.control.TreeItem&lt;java.io.File> item = FileTree.this. ←-
+            getSelectionModel().getSelectedItem();
+        System.out.println(item.getValue());
+        java.io.File file =item.getValue();
+        java.io.File f = new java.io.File(file.getPath() + System.getProperty("file ←-
+            .separator") + "Új altevékenység");
+        if (f.mkdir()) 
+            {
+                javafx.scene.control.TreeItem&lt;java.io.File> newAct
+                    = new FileTreeItem(f, new javafx.scene.image.ImageView(actIcon));
+                item.getChildren().add(newAct);
+            } else {
+                System.err.println("Cannot create " + f.getPath());
+            }
+    };
+    scene.getAccelerators().put(kc1, rn1);
+    ]]>
+        </programlisting>
+        <para>
+            Ezenkivül még egy modósítást fogok létrehozni.
+            CTRL + V kombinációra egy új props-ot fog létrehozni.
+            Ez szinte ugyan úgy kell létrehozni.
+        </para>
+        <programlisting language="C++"><![CDATA[
+        KeyCombination kc2 = new KeyCodeCombination(KeyCode.V, KeyCombination. ←-
+        CONTROL_DOWN);
+    Runnable rn2 = ()-> {
+        System.out.println("Ctrl V");
+        javafx.scene.control.TreeItem&lt;java.io.File> item = FileTree.this. ←-
+            getSelectionModel().getSelectedItem();
+        System.out.println(item.getValue());
+        java.io.File file = getTreeItem().getValue();
+        java.io.File f = new java.io.File(file.getPath() + System.getProperty("file ←-
+            .separator") + "Új altevékenység tulajdonságok");
+        try {
+            f.createNewFile();
+        } catch (java.io.IOException e) {
+            System.err.println(e.getMessage());
+        }
+        javafx.scene.control.TreeItem&lt;java.io.File> newProps
+            = new FileTreeItem(f, new javafx.scene.image.ImageView(actpropsIcon));
+        item.getChildren().add(newProps);
+    };
+    scene.getAccelerators().put(kc2, rn2);
+    ]]>
+        </programlisting>
+        <para>
+            Ezenkivül lehet még színeket állítani is a programon vagy egyéb kinézeti tulajdonságokat a <function>style.css</function> segítségével.
+        </para>
+    </section>        
+    <section>
+        <title>OOCWC Boost ASIO hálózatkezelése</title>
+        <para>
+		Mutassunk rá a scanf szerepére és használatára! https://github.com/nbatfai/robocaremulator/blob/master/justine/rcemu/src/carlexer.ll
+        </para>
+        <para>
+            Itt a megszokható OOCWC-ben lévő <function>scanf</function> szerepét fogjuk megnézni.
+            Magát a program lényegét már leírtam pár fejezettel hamarabb az ott megtalálható illetve az egész kód is.
+            Itt csak a függvény használatára fogok kitérni.
+            Nézzük is a kódcsípetet ahol látszani fog a használata :
+        </para>
+        <programlisting language="c++">
+            <![CDATA[
+while ( std::sscanf ( data+nn, "<OK %d %u %u %u>%n", &idd, &f, &t, &s, &n ) == 4 )
+{
+      nn += n;
+      gangsters.push_back ( Gangster {idd, f, t, s} );
+}            
+]]>
+        </programlisting>
+        <para>
+            Magára a függvényre azért van szükségünk, hogy fájleíróból tudjunk olvasni.
+            <function>while</function> ciklust van az elején ami addig fut le míg sikerült beolvasnia 4 paramétert.
+            A függvény stringet vár bemenetül.
+            A "data" segít nekünk abban, hogy olvasni tudjuk a beolvasatlan adatokat.
+            A string kezdete "<![CDATA[<OK]]>" míg folytatásban egy egész majd 3 előjel nélküli egész.
+            Utolsó paraméterként találhatjuk meg ahol a függvény a beolvasott bájtok számát határozza meg. ("n")
+            Ahogy látszódik még a kódból, hogy az "nn" változóhoz hozzáadjuk az "n"-et ami ugye a beolvasott bájtok száma.
+            Legvégül pedig a "gangsters" tömbhöt adunk egy gangstert a paramétereivel együtt.
+            
+        </para>
+        </section>
+	    <section>
+        <title>BrainB</title>
+        <para>
+		Mutassuk be a Qt slot-signal mechanizmust ebben a projektben: https://github.com/nbatfai/esporttalent-search
+        </para>
+        <para>
+            Maga a BrainB nevezetű programmal már találkozhattunk régebben.
+            Azt méri, hogy meddig tudunk fókuszálni egy adott játékban.
+            Nehezítés képpen több karakter illetve jelenség próbálja ezt megnehezíteni.
+            Maga a "játék" időtartama 10 perc.
+            Most viszont nem az egész kódcsípet kell nekünk hanem csak egy kis részlete, amiben bekell mutatni a Qt slot-signal mechanizmust.
+            Először is a Qt slot-signal mechanizmust szeretném tisztázni.
+            A Qt egyfajta keretrendszet ami cross-platformos.
+            Itt kell megnéznünk a slot-signal mechanizmust ami objektumok közötti kommunikációra ad segítséges.
+            Ezzel átláthatóbb és szebb lesz a kódunk.
+            Egy adott történésre egy signal jön létre.
+            A slot pedig egy függvény ami megfelelő signál esetén hívódik meg.
+            Szemantikailag mindig meegyeznek.
+            Most pedig lássuk a kivett kódcsípetet :
+        </para>
+        <programlisting language="C++"><![CDATA[
+connect ( brainBThread, SIGNAL ( heroesChanged ( QImage, int, int ) ),
+      this, SLOT ( updateHeroes ( QImage, int, int ) ) );
+
+connect ( brainBThread, SIGNAL ( endAndStats ( int ) ),
+      this, SLOT ( endAndStats ( int ) ) );
+]]></programlisting>
+        <para>
+            Itt láthatjuk még a <function>connect</function> függvényt ami az összekapcsolást valósítja meg a SLOT és a SIGNAL között.
+            Itt látszódik, hogy két függvényt futtattunk, egyik a : <function>heroesChanged</function> ami a lényegében a karakterváltás a signal bekövetkezésekor illetve másik a <function>endAndStats</function> ami pedig a futtatási idő lejárata függvény.
+            
+        </para>
+    </section> 
+        
+                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                        
+</chapter>                

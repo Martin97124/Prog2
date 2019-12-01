@@ -1,0 +1,106 @@
+<chapter xmlns="http://docbook.org/ns/docbook" xmlns:xlink="http://www.w3.org/1999/xlink" xmlns:xi="http://www.w3.org/2001/XInclude" version="5.0" xml:lang="hu">
+    <info>
+        <title>Helló, Calvin!</title>
+        <keywordset>
+            <keyword/>
+        </keywordset>
+    </info>
+
+    <section>
+        <title>MNIST</title>
+        <para>
+		Az alap feladat megoldása, +saját kézzel rajzolt képet is ismerjen fel,
+https://progpater.blog.hu/2016/11/13/hello_samu_a_tensorflow-bol Háttérként ezt vetítsük le:
+https://prezi.com/0u8ncvvoabcr/no-programming-programming/
+        </para>
+        <para>
+            Célunk nem más mint a tensorflow segítségével feléleszteni a programot.
+            Gép tanulást fogunk használni ennél a feladatnál.
+            A <function>Softmax</function> függvényt képletét használja ami valószínűségelosztást ad meg eredményül.
+            <function>y=softmax(Wx + b)</function> itt látható a képlet.
+            A "W" jelenti a súlyokat.
+            A súlyok döntik el, hogy amit látunk tárgy benne van-e a jó halmazban.
+            A "X" jelenti a bemenő értéket míg a "b" (bias) pedig egyfajta torzítási érték.
+            Az elve hasonlít a neurális and or xor kapura.
+            Ahoz, hogy biztosabb legyen a program minél több hidden réteg szükséges.
+            Jelen esetben 28*28 pixeles képen lévő szám megtanulására tanítjuk a gép modellt.
+            Amikor létrehozzuk a számunkat megkell adni az "x" illetve "y" értékeket.
+        </para>
+        <programlisting>for i in range(1000):
+    batch_xs, batch_ys = mnist.train.next_batch(100)
+    sess.run(train_step, feed_dict={x: batch_xs, y_: batch_ys})
+    if i % 100 == 0:
+      print(i/10, "%")
+  print("----------------------------------------------------------")</programlisting>
+        <para>
+            Itt azt figyelhetjük meg, hogy 1000 kép segítségével tanulja meg felismerni.
+            Viszont 100 képenként kapunk tájékoztatást a tanulás folyamatáról.
+        </para>
+        <programlisting>img = readimg()
+  image = img.eval()
+  image = image.reshape(28*28)</programlisting>
+        <para>
+            Itt kapcsolódik be a feladat legfőbb része, hogy saját képet nézzen.
+            Késöbb a <function>Matlab</function> segítségével tudjuk kirajzolni a kapott képet.
+            
+        </para>
+        <mediaobject>
+            <imageobject>
+                <imagedata fileref="img/szam.png" scale="45" />
+            </imageobject>
+            </mediaobject>
+    </section>        
+
+<section>
+        <title>CIFAR-10</title>
+        <para>
+		Az alap feladat megoldása, +saját fotót is ismerjen fel,
+https://progpater.blog.hu/2016/12/10/hello_samu_a_cifar-10_tf_tutorial_peldabol
+
+        </para>
+        <para>
+            A CIFAR-10 dataset egy képgyűjtemény, amit gépi tanuló algoritmusok tanítására szoktak használni. 60000 32x32-es képet tartalmaz, amiket 10 különböző csoportba sorolhatunk, úgy mint: autók, repülők, macskák, kutyák, madarak, szarvasok, teherautók, békák, lovak és hajók. A kicsi felbontás miatt gyorsan tesztelhetik a kutatók, hogy melyik algoritmussal milyen hatásos a tanulás. A példában a képeket binárissá alakítjuk, úgy hogy a képet „ellapítjuk” (lsd.: cifar10_2bin.py), azaz egy egysoros mátrixot képezünk ami magába foglalja a 32 sort, mindezt 3x, mert színes képeket használunk. 
+A rendszer tanítása (viszonylag) hosszú időt vesz igénybe. A GPU-s futtatás nagyobb teljesítményt eredményezett volna, már a 2 GPU-s futtatás is lehetséges, de sajnos nekem nem állt rendelkezésre megfelelő GPU.
+A tanítási folyamat befejeztével alkalmaztam a belinkelt tutorial módosításait, érdekes tapasztalat, hogy a pythonban a behúzásoknak mekkora jelentősége van. A tutorial módosításán kívül szükség volt még a logit tömb argumentumként átadására itt. Ha saját képen szeretnénk tesztelni, akkor a képet 32*32-es méretben futtatási argumentumként a cifar10_2bin.py-nek átadjuk.
+        </para>
+        
+        <mediaobject>
+            <imageobject>
+                <imagedata fileref="img/cifar.png" scale="40" />
+            </imageobject>
+            </mediaobject>
+    </section>        
+
+<section>
+        <title>Android telefonra a TF objektum detektálója</title>
+        <para>
+		Telepítsük fel, próbáljuk ki!
+
+        </para>
+        <para>
+            Feladatunk igen egyszerű, lekell tölteni az adott programot és kikell próbálni, hogy hogyan műküdik.
+            Androidon a "Play áruház"-on keresztül töltöttem le.
+            Miután elindítottam egész egyszerű a használata, kiírja, hogy a program szerint mi látszódik a képen amihez egy százalékot is csatól.
+            Viszonylag elég sok mindent felismer viszont vannak tárgyak amiket másnak állít be mint ami valóban is.
+            A kipróbálás során rájöttem, hogy az sem mindegy milyen pozícióból és mekkorára zoomolva nézzük az adott tárgya, mivel közelről egészen mást ír, mint távolról.
+        </para>
+        <mediaobject>
+            <imageobject>
+                <imagedata fileref="img/android1.png" scale="15" />
+            </imageobject>
+            </mediaobject>
+            <mediaobject>
+            <imageobject>
+                <imagedata fileref="img/android2.png" scale="15" />
+            </imageobject>
+            </mediaobject>
+            <mediaobject>
+            <imageobject>
+                <imagedata fileref="img/android3.png" scale="15" />
+            </imageobject>
+            </mediaobject>
+    </section>        
+
+        
+                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                        
+</chapter>                

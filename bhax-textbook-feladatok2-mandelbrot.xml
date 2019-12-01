@@ -1,0 +1,194 @@
+<chapter xmlns="http://docbook.org/ns/docbook" xmlns:xlink="http://www.w3.org/1999/xlink" xmlns:xi="http://www.w3.org/2001/XInclude" version="5.0" xml:lang="hu">
+    <info>
+        <title>Helló, Mandelbrot!</title>
+        <keywordset>
+            <keyword/>
+        </keywordset>
+    </info>
+
+      <section>
+        <title>Forward engineering UML osztálydiagram</title>
+        <para>
+		UML-ben tervezzünk osztályokat és generáljunk belőle forrást!
+        </para>
+        <para>
+        Nevéből adódoan ebben a feladatban UMLben kell megtervezni az osztályokat majd ebből generálunk egy kódot.
+	    Természetesen nem az egész és kész kódot fogjuk megkapni hanem csak egy vázat ami szerint eltudunk indulni belőle.
+	    Magáról az UML-ről lentebb olvashatunk részletesebben.
+	    </para>
+            <mediaobject>
+            <imageobject>
+                <imagedata fileref="img/Kell.png" scale="120" />
+            </imageobject>
+        </mediaobject>
+        <programlisting language="C++"><![CDATA[
+#include "LZWBinFa.h"
+
+LZWBinFa::LZWBinFa() {
+	// TODO - implement LZWBinFa::LZWBinFa
+	throw "Not yet implemented";
+}
+
+void LZWBinFa::kiir() {
+	// TODO - implement LZWBinFa::kiir
+	throw "Not yet implemented";
+}
+
+int LZWBinFa::getMelyseg() {
+	return this->melyseg;
+}
+
+double LZWBinFa::getAtlag() {
+	return this->atlag;
+}
+
+double LZWBinFa::getSzoras() {
+	return this->szoras;
+}
+
+void LZWBinFa::kiir(std::ostream& os) {
+	// TODO - implement LZWBinFa::kiir
+	throw "Not yet implemented";
+}
+
+LZWBinFa::LZWBinFa(const LZWBinFa& unnamed_1) {
+	// TODO - implement LZWBinFa::LZWBinFa
+	throw "Not yet implemented";
+}
+
+void LZWBinFa::kiir(Csomopont* elem, std::ostream& os) {
+	// TODO - implement LZWBinFa::kiir
+	throw "Not yet implemented";
+}
+
+void LZWBinFa::szabadit(Csomopont* elem) {
+	// TODO - implement LZWBinFa::szabadit
+	throw "Not yet implemented";
+}
+
+void LZWBinFa::rmelyseg(Csomopont* elem) {
+	// TODO - implement LZWBinFa::rmelyseg
+	throw "Not yet implemented";
+}
+
+void LZWBinFa::ratlag(Csomopont* elem) {
+	// TODO - implement LZWBinFa::ratlag
+	throw "Not yet implemented";
+}
+
+void LZWBinFa::rszoras(Csomopont* elem) {
+	// TODO - implement LZWBinFa::rszoras
+	throw "Not yet implemented";
+}
+]]></programlisting>
+        <para>
+            Itt a BINFÁ-ból egy forrást kaptunk viszont ez csak egy váz és rövídebb.
+        </para>
+        <mediaobject>
+            <imageobject>
+                <imagedata fileref="img/UML.png" scale="60" />
+            </imageobject>
+            </mediaobject>
+    </section> 
+	    <section>
+        <title>Egy esettan</title>
+        <para>
+		A BME-s C++ tankönyv 14. fejezetét (427-444 elmélet, 445-469 az esettan) dolgozzuk fel!
+
+        </para>
+        <para>
+Ebben a feladatban a modellezés és a C++ témát fogjuk kitárgyalni. 
+Legfőképp az UML (Unfied Modeling Language) modellezőnyelvvel fogunk találkozni.
+Ez a nyelv a jelenlegi a szoftverfejlesztés egyetlen szabványos nyelve, ez okból rengeteg eszköz támogat.
+Ez a modellezőnyelv legfőbb területe az osztálydiagramok.
+Ezek a diagramok osztályoket,interfészeket illetve egyéb típusokat,kapcsolatokat jeleníti meg.
+Jelkészlete a dobozok,vonalak,ikonok,szövegek.
+Először is taglaljuk kicsit az osztályokat.
+        </para>
+            <mediaobject>
+            <imageobject>
+                <imagedata fileref="img/osztaly.png" scale="70" />
+            </imageobject>
+        </mediaobject>
+        <para>
+Nevéből adódoan ez a legfontosabb elem az osztálydiagramokban.
+Jelölése egy téglalap.
+3 részre oszthatjuk ezt : 1. Osztály név 2. Osztály attribútuma(i) 3. Osztály művelete(i)
+A legfelső rész mindig látszódik míg az alsó 2 réteget eltudjuk távolítani a megjelenések közül.
+A középső réteg szintaxisa : Láthatóság név : Típus multiplicitás = Alapértelmezett érték {Tulajdonság(ok)}
+Neven kivül semmi sem kötelező innen viszont a láthatóságnak négy fajtája van.
+1. + azaz public
+2. - azaz private
+3. # azaz protected
+4. ~ azaz package (C++-on kivül)
+Most jöjjenek az asszociációk.
+Jelölése egy vonal.
+A vonalra ráírva adjuk meg a nevet.
+Az asszociáció attribútumait az asszociációs osztály modellezi, jelölése szaggatott vonal.
+Két fajta specializált fajtája van névszerint az aggregáció és a kompozíció.
+Az aggregáció tartalmazást jelöl, jelölése egy üres rombusz.
+        </para>
+            <mediaobject>
+            <imageobject>
+                <imagedata fileref="img/aggreracio.png" scale="70" />
+            </imageobject>
+        </mediaobject>
+        <para>
+Nem sűrűn használt fajta mivel szinte semmi jelentőssége nincs.
+A kompozíció viszont már két fontos dolgot is jelölhet :
+1. A tartalmazott objektum PONTOSAN egy tartalmazó objektumhoz tartozik
+2. A tartalmazott és a tartalmazó együtt jön létre és együtt szűnik meg. 
+Jelölése egy telt rombusz.
+        </para>
+        <mediaobject>
+            <imageobject>
+                <imagedata fileref="img/kompozicio.png" scale="70" />
+            </imageobject>
+        </mediaobject>
+        <para>
+            Most az esettan müködését mutatom meg.
+            Ebben a feladatban Dékány Róbert tanítványa voltam.
+        </para>
+        <mediaobject>
+            <imageobject>
+                <imagedata fileref="img/esettan1.png" scale="70" />
+            </imageobject>
+        </mediaobject>
+        <mediaobject>
+            <imageobject>
+                <imagedata fileref="img/esettan2.png" scale="70" />
+            </imageobject>
+        </mediaobject>
+    </section> 
+	    <section>
+        <title>BPMN</title>
+        <para>
+		Rajzoljunk le egy tevékenységet BPMN-ben!
+https://arato.inf.unideb.hu/batfai.norbert/UDPROG/deprecated/Prog2_7.pdf (34-47 fólia)
+        </para>
+        <para>
+            Maga mint, BPMN ( Business Process Model and Notation ) nem más mint egy üzleti folyamatmodellezési  szabvány, amely grafikus jelölést biztosít. 
+            Tehát egy üzleti diagramm. 
+            Főbb célja, hogy könnyebben átláthatóak legyenek a bonyolultabb dolgok is.
+            Mint ahogy feljebb írtam üzleti folyamatmodellezési szabány, ebből adódoan, csak az üzleti folyamatokra alkalmazható modellezés fogalmait veszi elő.
+            Négy fajta "alappillér" található meg : 1. Áramlási objektumok. 2. Objektumot összekapcsolása. 3. Útvonalak. 4. Leletek.
+            Mivel nincsen sok fajta varriáció így ezek a diagrammok kiolvasása egyszerűbb a megszokottnál.
+            Rengeteg ilyen fajta diagramm van a neten amiből egyet válaszottam bemutatás jellegén :
+        </para>
+            <mediaobject>
+            <imageobject>
+                <imagedata fileref="img/pizza.png" scale="60" />
+            </imageobject>
+        </mediaobject>
+        <para>
+            
+            Látszik, hogy 3 fajta sáv van : Vevő,Pincér,Séf. 
+            Mindegyiknek más lesz a dolga.
+            A kiinduló pont maga az, hogy éhes a Vevő, ekkor rendel egy pizzát.
+            Ezt követően fog elindulni a diagramm a pincérnél aki felveszi azt, majd tovább adja a séfnek, hogy készítse el.
+            Közben ugyan úgy fut a Vevőnél is a szál és addig ismétlődik a folyamat míg megnem kapja a pizzát azaz míg nem végez a Pincér és a séf.
+            Teljesen érthető diagramm és kivállóan van szemléltetve is.
+        </para>
+    </section> 
+                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                        
+</chapter>                

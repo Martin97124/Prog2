@@ -1,0 +1,342 @@
+<chapter xmlns="http://docbook.org/ns/docbook" xmlns:xlink="http://www.w3.org/1999/xlink" xmlns:xi="http://www.w3.org/2001/XInclude" version="5.0" xml:lang="hu">
+    <info>
+        <title>Helló, Chomsky!</title>
+        <keywordset>
+            <keyword/>
+        </keywordset>
+    </info>
+
+    <section>
+        <title>Encoding</title>
+        <para>
+		Fordítsuk le és futtassuk a Javat tanítok könyv MandelbrotHalmazNagyító.java forrását úgy, hogy a
+fájl nevekben és a forrásokban is meghagyjuk az ékezetes betűket!
+https://www.tankonyvtar.hu/hu/tartalom/tkt/javat-tanitok-javat/adatok.html
+
+        </para>
+        <para>
+            Maga a feladat egyszerűen értelmezhető. Egy program fordítása és futtatása.
+            Annyi a kitérő benne, hogy a magyar billentyűzetet fogunk használni benne azaz ékezeteket meghagyjuk.
+            Mint ahogy a feladat írta JAVA-ban kell ezt véghez vinni és ez nem véletlen.
+            Más programnyelvekben nem lehetséges / jelentős bonyodalmat okozna ez, de a JAVA kezelni tudja.
+            A enkódolást (encode) kell átállítanunk UTF-8-ra.
+            Ez a lépés nem szükséges amennyiben az alapértelmezett kódolást már alapból ez.
+            Ez inkább egy érdekesebb feladat volt mint hasznos, mivel külföldi programozók-nak feltehetőleg más az alapértelmezett kódolást ezálltal hibákat fog kiírni futtatás során.
+        </para>
+            <programlisting><![CDATA[
+            javac -encoding ISO-8859-2 MandelbrotHalmaz.java
+            java MandelbrotHalmaz
+            ]]>
+        </programlisting>
+        <para>
+            Így tudjuk lefordítani és futtatni a programot.
+        </para>
+        <mediaobject>
+            <imageobject>
+                <imagedata fileref="img/Mandelbrot.png" scale="25" />
+            </imageobject>
+            </mediaobject>
+            
+            <mediaobject>
+            <imageobject>
+                <imagedata fileref="img/nagyít1.png" scale="25" />
+            </imageobject>
+            </mediaobject>
+    </section>        
+
+     <section>
+        <title>OOCWC lexer</title>
+        <para>
+		Izzítsuk be az OOCWC-t és vázoljuk a https://github.com/nbatfai/robocar-emulator/blob/master/justine/rcemu/src/carlexer.ll lexert és kapcsolását a programunk OO
+struktúrájába!
+
+        </para>
+        <para>
+            Maga a szó jelentése Robocar World Championship.
+            Magyarra fordítva a robotautók terjedésének a vizsgálata.
+            Másik fontos dolog a <function>lexer</function> szó jelentése.
+            A feladata nem más mint, hogy konkrét szabályok mellett képesek legyünk előállítani szöveges állományokat.
+        </para>
+        <programlisting><![CDATA[
+%option c++
+%option noyywrap
+        ]]>
+        </programlisting>
+        <para>
+            Itt látszódik, hogy C++ lesz a nyelvünk illetve a <function>yywrap</function> nevű függvényre nem lesz szükségünk.
+        </para>
+        <programlisting><![CDATA[
+%{
+#define YY_DECL int justine::robocar::CarLexer::yylex()
+#include "carlexer.hpp"
+#include <cstdio>
+#include <limits>
+%}
+
+INIT	"<init"
+INITG	"<init guided"
+WS	[ \t]*
+WORD	[^-:\n \t()]{2,}
+INT	[0123456789]+
+FLOAT	[-.0123456789]+
+ROUTE	"<route"
+CAR	"<car"
+POS	"<pos"
+GANGSTERS	"<gangsters"
+STAT	"<stat"
+DISP	"<disp>"
+%% 
+        ]]>
+        </programlisting>
+        <para>
+            Ez a <function>carlexer.ll</function> definiciós része.
+            Konkrét, előre megadott reguláris kifejezések találhatóak meg itt.
+            Ezek fognak segíteni később a szabályoknál.
+        </para>
+        <programlisting><![CDATA[
+        {DISP}					{
+					  m_cmd = 0;
+					}
+{POS}{WS}{INT}{WS}{INT}{WS}{INT}	{
+					  std::sscanf(yytext, "<pos %d %u %u", &m_id, &from, &to);
+					  m_cmd = 10001;
+					}
+{CAR}{WS}{INT}				{
+					  std::sscanf(yytext, "<car %d", &m_id);
+					  m_cmd = 1001;
+					}
+{STAT}{WS}{INT}				{
+					  std::sscanf(yytext, "<stat %d", &m_id);
+					  m_cmd = 1003;
+					}
+{GANGSTERS}{WS}{INT}			{
+					  std::sscanf(yytext, "<gangsters %d", &m_id);
+					  m_cmd = 1002;
+					}
+{ROUTE}{WS}{INT}{WS}{INT}({WS}{INT})*	{
+				  int size{0};
+				  int ss{0};
+				  int sn{0};				  
+				  
+				  std::sscanf(yytext, "<route %d %d%n", &size, &m_id, &sn);
+				  ss += sn;
+				  for(int i{0}; i<size; ++i)
+				  {
+				    unsigned int u{0u};
+				    std::sscanf(yytext+ss, "%u%n", &u, &sn);
+				    route.push_back(u);
+				    ss += sn; 				    
+				  }
+				  m_cmd = 101;
+				}
+{INIT}{WS}{WORD}{WS}("c"|"g")	{
+				  std::sscanf(yytext, "<init %s %c>", name, &role);
+				  num = 1;
+				  m_cmd = 0;
+				}
+{INIT}{WS}{WORD}{WS}{INT}{WS}("c"|"g")	{
+				  std::sscanf(yytext, "<init %s %d %c>", name, &num, &role);
+				  if(num >200)
+				  {
+				    m_errnumber = 1;
+				    num = 200;
+				  }
+				  m_cmd = 1;
+				}				
+{INITG}{WS}{WORD}{WS}("c"|"g")	{
+				  std::sscanf(yytext, "<init guided %s %c>", name, &role);
+				  num = 1;
+				  m_guided = true;
+				  m_cmd = 3;
+				}
+{INITG}{WS}{WORD}{WS}{INT}{WS}("c"|"g")	{				  
+				  std::sscanf(yytext, "<init guided %s %d %c>", name, &num, &role);
+				  if(num >200)
+				  {
+				    m_errnumber = 1;
+				    num = 200;
+				  }
+				  m_guided = true;
+				  m_cmd = 2;
+				}								
+.				{;}
+%%
+
+
+int yyFlexLexer::yylex(){return -1;}
+            ]]>
+        </programlisting>
+        <para>
+            Itt találhatóak meg maguk a szabályok.
+            Látszódik, hogy egy-egy "Szakaszra" milyen reguláris kifejezések adottak.
+            <function>sscanf</function> függvény segítségét kihasználjuk még itt.
+            Az utolsó sorban még egy függvény definiálást láthatunk adott esetben a <function>yylex</function>-t.
+        </para>
+        
+        <mediaobject>
+            <imageobject>
+                <imagedata fileref="img/OOCWC.png" scale="65" />
+            </imageobject>
+            </mediaobject>
+            
+    </section> 
+    <section>
+        <title>l334d1c45</title>
+        <para>
+		Írj olyan OO Java vagy C++ osztályt, amely leet cipherként működik, azaz megvalósítja ezt a betű
+helyettesítést: https://simple.wikipedia.org/wiki/Leet (Ha ez első részben nem tetted meg, akkor írasd
+ki és magyarázd meg a használt struktúratömb memóriafoglalását!)
+        </para>
+        <programlisting><![CDATA[
+#include<iostream>
+#include<fstream>
+#include<vector>
+#include<string>
+#include <algorithm>
+#include <cctype>
+using namespace std;
+
+class LeetCipher {
+public:
+	LeetCipher();
+	string decipher(string& text);
+private:
+	vector<vector <string>> leetabc;
+	vector<string> abc;
+};
+
+	LeetCipher::LeetCipher() {
+	srand (time(NULL));
+leetabc.resize(26);
+leetabc[0]= {"4", "/-||", "/_||", "@", "/||"};
+leetabc[1]={"8","|3", "13", "|}", "|:", "|8", "18", "6", "|B", "|8", "lo", "|o"};
+leetabc[2]= { "<", "{", "[", "("};
+leetabc[3] = {"|)", "|}", "|]"};
+leetabc[4] = {"3"};
+leetabc[5] = { "|=", "ph", "|#", "||"};
+leetabc[6] = {"[", "-", "[+", "6"};
+leetabc[7] = {"4", "|-|", "[-]", "{-}", "|=|", "[=]", "{=}"};
+leetabc[8] = {"1", "|", "!", "9"};
+leetabc[9] = {"_|", "_/", "_7", "_)", "_]", "_}"};
+leetabc[10] = {"|<", "1<", "l<", "|{", "l{"};
+leetabc[11] = {"|_", "|", "1", "]["};
+leetabc[12] = {"44", "|||/|", "^^", "/||/||", "/X||", "[]||/][", "[]V[]","][||||//][", "(V)","//., .||||", "N||"};
+leetabc[13] = {"||||", "/||/", "/V", "][||||]["};
+leetabc[14] ={"0", "()", "[]", "{}", "<>"};
+leetabc[15] = { "|o", "|O", "|>", "|*", "||textdegree{}", "|D", "/o"};
+leetabc[16] = {"O_", "9", "(,)", "0,"};
+leetabc[17] = {"|2"," 12", ".-", "|^", "l2"};
+leetabc[18] = {"5", "$", "§"};
+leetabc[19] = {"7", "+", "7‘", "|’||’" , "‘|‘" , "~|~" , "-|-"};
+leetabc[20] = {"|_|", "||_||", "/_/", "||_/", "(_)", "[_]", "{_}"};
+leetabc[21] = {"||/"};
+leetabc[22] = {"||/||/", "(/||)", "||^/", "|/|||", "||X/", "|||||’", "|’//", "VV"};
+leetabc[23] = {"%", "*", "><", "}{", ")("};
+leetabc[24] = {"‘/", "$|yen$"};
+leetabc[25] = { "2", "7_", ">_"};
+
+abc =
+{
+	"A" ,
+	"B",
+	"C",
+	"D",
+	"E",
+	"F",
+	"G",
+	"H",
+	"I",
+	"J",
+	"K",
+	"L",
+	"M",
+	"N",
+	"O",
+	"P",
+	"Q",
+	"R",
+	"S",
+	"T",
+	"U",
+	"V",
+	"W",
+	"X",
+	"Y",
+	"Z"
+};
+}
+
+string LeetCipher::decipher(string &text) {
+
+	string leet = "";
+	string be = text;
+
+	transform(be.begin(), be.end(),be.begin(), ::toupper);
+
+	while(!be.empty())
+	{
+	bool find=false;
+	for (int i=0; i<abc.size(); i++)
+		{	
+		size_t found = be.find(abc[i]);
+		if (found==0)
+			{
+			find =true;
+			leet+=leetabc[i][rand() % leetabc[i].size()];
+			if(be.length() > 1)
+			be=be.substr(1);
+		else
+			be.clear();
+		}
+	}
+
+	if(!find){
+		leet+=be[0];
+		if(be.length()>1)
+			be=be.substr(1);
+		else
+			be.clear();
+		}
+	}
+
+return leet;
+}
+
+int main(int argc, char * argv[])
+{
+	ifstream infile (argv[1]);
+	fstream outfile (argv[2], ios::out);
+
+	string text = "";
+	string temp = "";
+
+	while(getline(infile, temp)) {
+		text+=temp;
+	}
+
+	LeetCipher* cipher = new LeetCipher();
+	string cipheredText = cipher->decipher(text);
+	outfile<<cipheredText<<endl;
+}
+
+                ]]>
+        </programlisting>
+        <para>
+            Ebben a feladatban a szleng nyelvvel fogunk foglalkozni.
+            Különböző betűket tudunk használni akár másik számmal vagy másik szimbólikus karakterekkel is. 
+            Ilyen például az S betű helyett a $ vagy E betű helyett a 3. 
+            Manapság ezek igen elterjedtek a fiatalok körébe, viszont sokan pedig nem értik ezeket a szleng nyelveket.
+            Maga ez egész feladat érthető és könnyen végigvihető. 
+            A kódcsípet első részében megvannak adva az adott betűnek a szlengben használt "jelei". 
+            Ezután következik, hogy a nagybetűket kisbetűvé alakítja át a kód és átírjam az első részben vett leet karakterekre. 
+            A legvégén pedig egyszerűen csak hivatkozunk rá és meghívjuk.
+        </para>
+        <mediaobject>
+            <imageobject>
+                <imagedata fileref="img/leet.png" scale="45" />
+            </imageobject>
+            </mediaobject>
+    </section> 
+        
+                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                        
+</chapter>                

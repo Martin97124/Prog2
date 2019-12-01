@@ -1,0 +1,184 @@
+<chapter xmlns="http://docbook.org/ns/docbook" xmlns:xlink="http://www.w3.org/1999/xlink" xmlns:xi="http://www.w3.org/2001/XInclude" version="5.0" xml:lang="hu">
+    <info>
+        <title>Helló, Schwarzenegger!</title>
+        <keywordset>
+            <keyword/>
+        </keywordset>
+    </info>
+
+    <section>
+        <title>Port scan</title>
+        <para>
+		Mutassunk rá ebben a port szkennelő forrásban a kivételkezelés szerepére!
+https://www.tankonyvtar.hu/hu/tartalom/tkt/javat-tanitok-javat/ch01.html#id527287
+
+        </para>
+        <para>
+            Ennek a feladatnak a témája a kivételkezelés lesz.
+            JAVA nyelvben egy kiemelt fontosságot kap.
+            Maga a kivételkezelés egy programozási mechanizmus mely szándékosan vagy nem szándékosan(error esetén), de megállítja a programot.
+            Az objektum orientált nyelvekben a szintaxisa a <function>try, catch</function> játszadozásával jelenik meg.
+            <function>try</function>-nak a lényege, hogy oda tesszük meg a vizsgálandó kód-ot, míg a <function>catch</function>-ben vizsgáljuk a kívételt vagy kívételeket.
+            Egy port szkennelő forrást kell megnéznünk.
+            Maga a feladat a való életben is jelen van.
+            Egyik megfelelője amikor rendszergazdák vagyunk ebben az esetben a feladatunk, hogy a hálózaton keresztül ne férjen más hozzá az adatainkhoz.
+            Egy másik példa pedig amikor, pont ezért kapunk pénzt, hogy hibás réseket keressünk egy adott rendszeren.
+            A port szkennelést nem saját gépen való használat esetén nem nagyon ajánlott mivel nem annyira legális.
+            Lássuk is a vizsgált kódrészletet :
+        </para>
+         <programlisting language="java"><![CDATA[
+public class KapuSzkenner {
+    public static void main(String[] args) {
+        
+        for(int i=0; i<1024; ++i)
+            
+            try {
+                
+                java.net.Socket socket = new java.net.Socket(args[0], i);
+                
+                System.out.println(i + " figyeli");
+                
+                socket.close();
+                
+            } catch (Exception e) {
+                
+                System.out.println(i + " nem figyeli");
+                
+            }
+    }
+    
+}]]>
+            </programlisting>
+            <para>
+                Ahogy látszik csak 1024 portig megy el a program.
+                Ezután ahogy láthatjuk a <function>try, catch</function> fog szerepet kapni.
+                Minden portra egy <function>socket</function>-et próbálunk "ráadni".
+                Ez próbál kapcsolatot létrehozni a porttal.
+                Amennyiben ez sikerült akkor kapcsolat jött létre, viszont ha nem akkor jön a <function>catch</function> kivételkezelés.
+            </para>
+            <mediaobject>
+            <imageobject>
+                <imagedata fileref="img/port.png" scale="45" />
+            </imageobject>
+            </mediaobject>
+    </section>        
+
+   <section>
+        <title>AOP</title>
+        <para>
+		Szőj bele egy átszövő vonatkozást az első védési programod Java átiratába! (Sztenderd védési
+feladat volt korábban.)
+        </para>
+        <para>
+            Ebben a feladatban az AspectJ programozási nyelv fog segítségünkre kelleni.
+            Ebben a nyelvben a már kész JAVA kódokat tudjuk használni vagy akár egységesebbé tenni.
+            Ennek a programozási nyelvnek az a lényege, hogy egy adott kódot úgy módosítsunk, hogy ne kelljen a forráskódon módosítást végrehajtanunk.
+            Az AspectJ segítségével megtudunk változtatni egy függvényt vagy akár hogy előtte / utána változzon-e valami.
+            Ez a programozási nyelv vezette be a csatlakozási pontot ( joint point ).
+            Ez felel a kereszthívások definilásáért.
+            Még itt érdemes megemlíteni a vágási pontot ( cut point ).
+            Csatlakozási pontok és az értékük szortirozásáért felelős.
+            A harmadik fogalom amit tisztázni kell az a " tanács".
+            Itt történik a lényeg amiből következően itt történik a program módosítása.
+            Most pedig lássuk a feladatot:
+        </para>
+        <programlisting language="java"><![CDATA[
+public class Test
+{
+	public static class testtest
+	{
+		public void testfn()
+		{
+			System.out.println("test");
+		}
+	}
+	
+	public static void main(String[] args)
+	{
+		testtest test1 = new testtest();
+		test1.testfn();
+	}
+}]]></programlisting>
+
+            <para>
+                Ez egy egyszerű kis program ami a kiíratáshoz lesz majd szükséges.
+            </para>
+            <programlisting language="java"><![CDATA[
+public aspect BeforeAfter
+{
+	public pointcut fnCall(): call(public void testfn());
+
+	before(): fnCall() 
+	{
+		System.out.println("before> test");
+	}
+
+	after(): fnCall()
+	{
+		System.out.println("after> test");
+	}
+}]]></programlisting>
+        <para>
+            Itt történik a módosítás az AspectJ segítségével.
+            A vágási pont (pointcut) fogja megmutatni, hogy hol fog végbe menni a szövés.
+        </para>
+        <programlisting language="java"><![CDATA[
+ajc Test.java BeforeAfter.aj
+java -cp /usr/share/java/aspectjrt.jar:. Test]]></programlisting>
+        <para>
+            Itt pedig láthatjuk a fordítást és a futtatást.
+        </para>
+        <mediaobject>
+            <imageobject>
+                <imagedata fileref="img/AOP.png" scale="45" />
+            </imageobject>
+            </mediaobject>
+    </section>        
+	<section>
+        <title>Junit teszt</title>
+        <para>
+		A https://progpater.blog.hu/2011/03/05/labormeres_otthon_avagy_hogyan_dolgozok_fel_egy_pedat
+poszt kézzel számított mélységét és szórását dolgozd be egy Junit tesztbe (sztenderd védési feladat
+volt korábban).
+
+        </para>
+        <para>
+            A Junit-teszt egy keretrendszer JAVA-hoz.
+            Ennek a segítségével tudunk különböző kódokat tesztelő osztályokat.
+            Ellenőrzésképpen tökéletes, hogy jól fut-e le a kód.
+            Az <function>equals</function> metódus vizsgálja meg, hogy a két eredmény ugyan az-e.
+            Ebben a feladatban a kézzel kiszámított Binfa átlag,szórás és mélységét értékeit "tesztelés alá" vegyük.
+            Először is kikell számolni ezeket manuálisan.
+            Junit-tools Plugijnt fogok használni ehez a feladathoz.
+            Nem kaptunk errort, jól futott le a program.
+            
+        </para>
+        <programlisting language="Java"><![CDATA[
+package binfa;
+import static org.junit.jupiter.api.Assertions.*;
+import org.junit.jupiter.api.Test;
+class BinfaTest {
+	LZWBinFa binfa = new LZWBinFa();
+	
+	@Test
+	void test() {
+		for (char c: "011110010010010000111".toCharArray()) {
+			binfa.egyBitFeldolg(c);
+		}
+		
+		assertEquals(4, binfa.getMelyseg());
+		assertEquals(2.75, binfa.getAtlag());
+		assertEquals(0.957427, binfa.getSzoras(), 0.0001);
+	}
+}]]>
+		</programlisting>
+		
+		<mediaobject>
+            <imageobject>
+                <imagedata fileref="img/Junit.png" scale="45" />
+            </imageobject>
+            </mediaobject>
+    </section>        
+        
+                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                        
+</chapter>                

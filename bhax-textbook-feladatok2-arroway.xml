@@ -1,0 +1,296 @@
+<chapter xmlns="http://docbook.org/ns/docbook" xmlns:xlink="http://www.w3.org/1999/xlink" xmlns:xi="http://www.w3.org/2001/XInclude" version="5.0" xml:lang="hu">
+    <info>
+        <title>Helló, Arroway!</title>
+        <keywordset>
+            <keyword/>
+        </keywordset>
+    </info>
+
+    <section>
+        <title>OO szemlélet</title>
+        <para>
+		A módosított polártranszformációs normális generátor beprogramozása Java nyelven. Mutassunk rá,
+hogy a mi természetes saját megoldásunk (az algoritmus egyszerre két normálist állít elő, kell egy
+példánytag, amely a nem visszaadottat tárolja és egy logikai tag, hogy van-e tárolt vagy futtatni kell
+az algot.) és az OpenJDK, Oracle JDK-ban a Sun által adott OO szervezés ua.!
+https://arato.inf.unideb.hu/batfai.norbert/UDPROG/deprecated/Prog1_5.pdf (16-22 fólia)
+Ugyanezt írjuk meg C++ nyelven is! (lásd még UDPROG repó: source/labor/polargen)
+
+        </para>
+        
+        
+        <para>
+            Legelején az alap gondolatmenetet kell meghatároznunk.
+            Ennél a feladatnál maga a matematika háttér részletezése nem fontos.
+            A főbb szakasza a feladatnak az, hogy lefutás (egyszeri) után nem egy hanem kettő darab  véletlenszerű számot kapunk. 
+            Ez azért lényeges mivel ilyenkor az elöző futtatásnál tárolt egyik számot visszatudjuk adni a következő futtatáshoz.
+            Processzor terhelés szempontjából jóval hasznosabb.
+            Egy oszályt kell megírnunk ennek segítségére.
+            JAVÁ-ban megírt kód két nagyobb részre osztható fel.
+        </para>
+        <programlisting language="Java"><![CDATA[
+        public class PolárGenerátor 
+{
+    
+    boolean nincsTárolt = true;
+    double tárolt;
+    
+    public PolárGenerátor()
+    {
+        nincsTárolt = true;
+    }
+    
+    public double következő()  
+    {
+        if (nincsTárolt)
+        {
+            double u1, u2, v1, v2,w;
+            do 
+            {
+                u1 = Math.random();
+                u2 = Math.random();
+                v1 = 2 * u1 - 1;
+                v2 = 2 * u2 - 1;
+                w = v1 * v1 + v2 * v2;
+            }  
+            while (w >1);
+            double r = Math.sqrt((-2 * Math.log(w)) / w);
+            tárolt = r * v2;
+            nincsTárolt = !nincsTárolt;
+            return r * v1;
+        } else 
+        {
+            nincsTárolt = !nincsTárolt;
+            return tárolt;
+        }
+    }]]>
+        </programlisting>
+        <para>
+            <function>boolean</function> egy változó ami visszatér (akár TRUE / FALSE) egy értékkel, hogy van-e már kiszámolt véletlenszámunk. 
+            <function>double</function> ez is egy változó ami az értéket menti el.
+            Ezután található meg, a feladat lényege, hogy visszaadjunk egy számot a következő számításhoz.
+            Ez az egész egy osztályban található.
+            Most következik a <function>main</function> függvényben az osztály meghívása.
+        </para>
+         <programlisting language="Java"><![CDATA[
+             public static void main(String[] args)
+    {
+        PolárGenerátor g = new PolárGenerátor();
+        for (int i = 0; i < 10; ++i) 
+        {
+            System.out.println(g.következő());
+        }
+    }
+}]]>
+        </programlisting>
+        <para>
+            Itt a meghíváson kivül még leteszteljük a programot. 10-szer fogjuk meghívni ami során 5-ször fog számítást végrehajtani mivel csak minden második zajlik le(1 lefut következőnél az elöző számot veszi figyelembe és így tovább 5-ször). 
+            Lássuk az eredményt.
+        </para>
+            <mediaobject>
+            <imageobject>
+                <imagedata fileref="img/PolárGen.png" scale="45" />
+            </imageobject>
+            </mediaobject>
+    
+          <para>
+            Eddig JAVA-ban volt most következzen a C++ verziója.
+            Lényegében ugyan az mivel a feladat is ugyan az. Szintaktikai eltérések vannak a kettő közt javarészt viszont még annyit hozzátennék, hogy C++-ban az osztályon kivül van a <function>main</function>. 
+             </para>
+             <programlisting language="C++"><![CDATA[
+ #include <iostream>
+#include <cstdlib>
+#include <cmath>
+#include <ctime>
+
+class PolarGen
+{
+public:
+  PolarGen ()
+  {
+    nincsTarolt = true;
+    std::srand (std::time (NULL));
+  }
+   ~PolarGen ()
+  {
+  }
+  double kovetkezo ();
+
+private:
+  bool nincsTarolt;
+  double tarolt;
+
+};
+double
+PolarGen::kovetkezo ()
+{
+  if (nincsTarolt)
+    {
+      double u1, u2, v1, v2, w;
+      do
+	{
+	  u1 = std::rand () / (RAND_MAX + 1.0);
+	  u2 = std::rand () / (RAND_MAX + 1.0);
+	  v1 = 2 * u1 - 1;
+	  v2 = 2 * u2 - 1;
+	  w = v1 * v1 + v2 * v2;
+	}
+      while (w > 1);
+
+      double r = std::sqrt ((-2 * std::log (w)) / w);
+
+      tarolt = r * v2;
+      nincsTarolt = !nincsTarolt;
+
+      return r * v1;
+    }
+  else
+    {
+      nincsTarolt = !nincsTarolt;
+      return tarolt;
+    }
+}
+int
+main (int argc, char **argv)
+{
+  PolarGen pg;
+
+  for (int i = 0; i < 10; ++i)
+    std::cout << pg.kovetkezo () << std::endl;
+
+  return 0;
+}}]]>
+        </programlisting>
+        <para>Lássuk az eredményt újra.</para>
+            <mediaobject>
+            <imageobject>
+                <imagedata fileref="img/Polár.png" scale="45" />
+            </imageobject>
+            </mediaobject>
+
+    </section>        
+
+    <section>
+        <title>„Gagyi”</title>
+        <para>
+Az ismert formális
+„<![CDATA[while (x &lt;= t &amp;&amp; x &gt;= t &amp;&amp; t != x)
+]]>” tesztkérdéstípusra adj a szokásosnál
+(miszerint x, t az egyik esetben az objektum által hordozott érték, a másikban meg az objektum
+referenciája) „mélyebb” választ, írj Java példaprogramot mely egyszer végtelen ciklus, más x, t
+értékekkel meg nem! A példát építsd a JDK Integer.java forrására3
+, hogy a 128-nál inkluzív objektum
+példányokat poolozza!
+        </para>
+
+        <para>
+            Mint ahogy olvashattuk a leírásban végtelen ciklust két esetben kaphatunk ennél a tesztkérdésnél( <![CDATA[ while (x <= t && x >= t && t != x);] ]]>).
+            Egyik eset az amikor az objektum által hordozott érték, míg a másiknál az objektum referenciája.
+            Jó tisztázni az <function> Integer </function> fogalmát. 
+            Amikor egy ilyen objektumot létrehozunk abban az esetben ha két intervallumba tesszük meg ( -128 - 127  ) poolból fogunk értéke visszakapni. 
+            Például ha x-nek illetve y-nak 0 értéket adunk ezesetben mind a kettő változónál ugyan az lesz az objektum. 
+            Viszont ha ez az intervallumon kivülre esik a megadott szám akkor egy végtelen ciklust fogunk kapni. 
+            Lássuk is a példaprogramot :
+        </para>
+         <programlisting language="Java"><![CDATA[
+public class Gagyi
+{
+    public static void main (String[]args)
+    {
+        Integer x = -200;
+        Integer t = -200;
+        System.out.println (x);
+        System.out.println (t);
+        while (x <= t && x >= t && t != x);
+    }
+}]]>
+        </programlisting>
+        <para>
+        Eredmény :
+        </para>
+<mediaobject>
+            <imageobject>
+                <imagedata fileref="img/Gagyi.png" scale="45" />
+            </imageobject>
+            </mediaobject>
+        <para>
+        Itt láthatjuk, hogy egy végtelen ciklust kaptunk mivel az intervallum külsejére esett a megadott (-200) szám. 
+        Két egymástól eltérő objektum címűnk is lesz.
+        </para>
+        <para>
+            Most lássuk azt az esetet amikor is az adott szám beleesik az intervallumba.
+        </para>
+        <programlisting language="Java"><![CDATA[
+public class GagyiMami
+{
+    public static void main (String[]args)
+    {
+        Integer x = 0;
+        Integer t = 0;
+        System.out.println (x);
+        System.out.println (t);
+        while (x <= t && x >= t && t != x);
+    }
+}
+        ]]>
+         </programlisting>
+         <para>
+        Eredmény :
+        </para>
+<mediaobject>
+            <imageobject>
+                <imagedata fileref="img/GagyiMami.png" scale="45" />
+            </imageobject>
+            </mediaobject>
+         <para>
+             Itt láthatjuk, hogy ugyan az az egész kód csak a szám más. Ez nem végtelen ciklus illetve ugyan az lesz a memóriaciműk is.
+         </para>
+    </section>  
+
+    <section>
+        <title>Yoda</title>
+        <para>
+Írjunk olyan Java programot, ami java.lang.NullPointerEx-el leáll, ha nem követjük a Yoda
+conditions-t! https://en.wikipedia.org/wiki/Yoda_conditions
+        </para>
+        <para>
+            Ezt a feladatot összelehet kötni a jól ismert "Star Wars" filmben szereplő "Yoda" karakterével.
+            Nem hiába az elnevezése mivel neki a beszéde volt kicsit fura mert nem a megszokott szintaktikát használta hanem eltért erről. 
+            Míg a filmben "Yoda" tárgy-alany-ige így teszi össze a mondatait addig mi a konstansot írjuk át a bal oldalra összehasonlításnál, a változót pedig jobbra.
+            Akkor csináltuk jól a feladatot ha leállt a program amikor nem követtük Yoda szabályát. 
+            Ezzel a módszerrel a sok időt tudunk megspórolni hibakeresés során.
+            Nulla pointerhez nem lehet metódust írni.
+            </para>
+        
+        <programlisting language="Java"><![CDATA[
+class yoda
+{
+	public static void main(String[] args)
+	{
+		String marka = null;
+			
+                if(marka.equals("Nike"))
+			System.out.println("Helyes megfejtés.");
+
+                }
+}]]>
+         </programlisting>
+         <para>
+            Eredmény : 
+        </para>
+         <programlisting language="Java"><![CDATA[
+         Exception in thread "main" java.lang.NullPointerException
+	at yoda.main(yoda.java:24)
+
+         ]]>
+         </programlisting>
+         
+
+        <para>
+            Jól csináltuk mivel leállt a program futtatása. 
+            Ez a gondolat menet hasznos lehet hibák keresésénél is. 
+        </para>
+    </section>  
+        
+                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                        
+</chapter>                

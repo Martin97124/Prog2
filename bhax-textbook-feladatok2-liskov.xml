@@ -1,0 +1,224 @@
+<chapter xmlns="http://docbook.org/ns/docbook" xmlns:xlink="http://www.w3.org/1999/xlink" xmlns:xi="http://www.w3.org/2001/XInclude" version="5.0" xml:lang="hu">
+    <info>
+        <title>Helló, Liskov!</title>
+        <keywordset>
+            <keyword/>
+        </keywordset>
+    </info>
+
+    <section>
+        <title>Liskov helyettesítés sértése</title>
+        <para>
+		Írjunk olyan OO, leforduló Java és C++ kódcsipetet, amely megsérti a Liskov elvet! Mutassunk rá a
+megoldásra: jobb OO tervezés.
+https://arato.inf.unideb.hu/batfai.norbert/UDPROG/deprecated/Prog2_1.pdf (93-99 fólia)
+(számos példa szerepel az elv megsértésére az UDPROG repóban, lásd pl. source/binom/BatfaiBarki/madarak/)
+        </para>
+        <para>
+            Az objektumorientált programozásnak öt alapelve van amik közül az egyik a Liskov helyettesítés.
+            Először is magát a "Liskov elvet" kell rendben tenni. 
+            Ha "S" osztály "T" osztály leszármazottja, akkor "S" szabadon behelyettesíthető minden olyan helyre ,ahol "T" típust várunk.
+            Hozzátéve, hogy ilyenkor az "S" osztály örökli az összes tulajdonságát a "T" osztálynak. 
+            Ez program lefutás céljából tökéletes viszont maga a tartalom nem minden esetben igaz.
+            Kezdjük C++-ban a kódcsípetek bemutatását.
+          </para>
+          <programlisting language="C++"><![CDATA[
+#include <iostream>
+class Madar {
+public:
+virtual void repul() {};
+};
+class Program {
+public:
+void fgv ( Madar &madar ) {
+madar.repul();
+}
+};
+}]]>
+            </programlisting>  
+        <para>
+            Itt látszódik, hogy 2 darab osztályból fog állni a "P program".
+            Most következik, hogy létrehozzuk az "S" osztályakat amik lesznek a leszármazottak.
+        </para>
+
+            <programlisting language="C++"><![CDATA[
+class Sas : public Madar
+{
+};
+class Pingvin : public Madar 
+{
+void repul() {
+std::cout<<"A pingvin nemtud repülni.\n";
+}
+};
+int main ( int argc, char **argv )
+{
+Program program;
+Madar madar;
+program.fgv ( madar );
+Sas sas;
+program.fgv ( sas );
+Pingvin pingvin;
+program.fgv ( pingvin ); }]]>
+        </programlisting>  
+        <mediaobject>
+            <imageobject>
+                <imagedata fileref="img/Liskov.png" scale="34" />
+            </imageobject>
+            </mediaobject>
+        <para>
+            Az utolsó sorból látszik a feladatunk, hogy sérti a Liskov elvet mivel a függvény röptetné a pingvint, de ez lehetetlen a való életben.
+            Most ezt együk át JAVA-ba.
+        </para>
+        <programlisting language="JAVA"><![CDATA[
+        class noveny{
+    public static void main(String[] args){
+        Kaktusz r = new Kaktusz();
+        Program.fgv(r);
+    }
+     
+}
+class Virag{
+    void szur(){
+        System.out.print("Megszúrt");
+    }
+}
+class Tulipan extends Virag{        
+}
+class Kaktusz extends Virag{
+}
+class Program{
+    public static void fgv(Virag v){
+        v.szur();
+    }
+  }]]>
+        </programlisting>
+        <para>
+            A feladat ugyan az mint az elözőnél volt.
+            Létrehoztuk egy ős osztályt amin belül kettő darab alosztályt.
+            Mivel köztudottan a Tulipan nem szúr ezért sérteni fogja az elvet.
+        </para>
+        <mediaobject>
+            <imageobject>
+                <imagedata fileref="img/noveny.png" scale="45" />
+            </imageobject>
+            </mediaobject>
+    </section>
+       <section>
+        <title>Szülő-gyerek</title>
+        <para>
+Írjunk Szülő-gyerek Java és C++ osztálydefiníciót, amelyben demonstrálni tudjuk, hogy az ősön
+keresztül csak az ős üzenetei küldhetőek!
+https://arato.inf.unideb.hu/batfai.norbert/UDPROG/deprecated/Prog2_1.pdf (98. fólia)4
+        </para>
+
+        <para>
+            A feladat megkezdésénél létrekell hoznunk egy ős osztály aminek a neve most "Szulo" lesz.
+            Ennek leszármazottjaként készítünk egy "Gyerek" alosztályt.
+            Mint ahogy feljebb már említettem, ilyenkor az alosztály örökli az ős osztály tulajdonságait.
+            Kiegészítve ezt még, hogy az ős osztály viszont nem bövűl, tehát egyoldalú csak ez az öröklődés.
+            Miután létrejöttek az osztályok, meghívjuk az alosztályt ős osztályként.
+            Viszont ekkor egy híbát fogunk kapni mivel ez nem lesz lehetséges.
+            Ennek a logikája hasonlít a matematikába lévő : Minden rombusz paralelogramma, de nem minden paralelogramma rombusz.
+            Lássuk is a példát C++ -ban.
+        </para>
+        <programlisting language="C++"><![CDATA[
+#include <iostream>
+class szulo {
+public:
+void uzenet()
+{
+std::cout << "Felnőtt tulajdonságai\n";
+}
+};
+class gyerek : public szulo {
+void uzenet1(){
+std::cout << "Gyerek tulajdonságai\n";
+}
+};
+int main()
+{
+szulo * felnott = new gyerek();
+felnott -> uzenet1();
+}
+    }]]>
+        </programlisting>
+        <mediaobject>
+            <imageobject>
+                <imagedata fileref="img/kapcsolat.png" scale="45" />
+            </imageobject>
+            </mediaobject>
+        <para>
+            Most nézzük JAVA-ban
+            Miután lefuttattuk a programot akkor fogjuk sikeresen megcsinálni a feladatot ha hibát kapunk.
+        </para>
+        <programlisting language="JAVA"><![CDATA[
+        class Szulogyerek {
+class Szulo {
+int kor, nem;
+boolean dolgozik;
+Szulo() {
+kor = 32;
+nem = 1;
+dolgozik = true;
+}
+};
+class Gyerek extends Szulo {
+public int fogainakszama;
+Gyerek() {
+fogainakszama = 15;
+kor = 6;
+nem = 2;
+dolgozik = false;
+}
+}
+public static void main(String[] args) {
+Szulogyerek szu = new Szulogyerek();
+Szulo szulo = szu.new Gyerek();
+System.out.println(szulo.fogainakszama); 
+}
+};]]>
+        </programlisting>
+        <para>
+            A két alosztályt elláttunk pár tulajdonsággal.
+            A <function>main</function>-be viszont már errort fogunk kapni mivel nemtudjuk meghívni az alosztályt ős osztályként.
+        </para>
+        <mediaobject>
+            <imageobject>
+                <imagedata fileref="img/szulogyerek.png" scale="45" />
+            </imageobject>
+            </mediaobject>
+    </section>
+	<section>
+        <title>Ciklomatikus komplexitás</title>
+        <para>
+Számoljuk ki valamelyik programunk függvényeinek ciklomatikus komplexitását! Lásd a fogalom
+tekintetében a https://arato.inf.unideb.hu/batfai.norbert/UDPROG/deprecated/Prog2_2.pdf (77-79
+fóliát)!
+        </para>
+        <para>
+            Itt nem egy programot kell írni hanem egy programnak a ciklomatikus komplexitását kell kiszámolni.
+            Konyhanyelvre átvéve a kód bonyolúltságát számolja ki nekünk. 
+            Elképzelés szerint hasonlíthatjuk egy családfa rajzára is, ahol elágazások vannak amiknek köszönhetően "nő" a bonyolultság, és ezt számolja ki.
+            Kisebb programokra kézzel is kiszámítható egy képlet alapján.
+            M = E - N + 2P.
+            M = Ciklomatikus szám
+            E = Az adott gráf éleinek száma
+            N = Az adott gráfban lévő csúcszok száma
+            P = Az összefüggő komponensek száma
+            Viszont ezt már nagyobb programoknál nem tehetjük meg ezért hoztak létre több ilyet is. Én jelen esetben a "Lizard.ws" nevezetű szoftvert fogom alkalmazni.
+            Eredménye egy konkrét szám lesz, így könnyen kiolvasható.
+            Ez az egész kiszámítás a gráfelméletre építette McCabe ("feltaláló").
+            Az adott programom legyen most a "LZWBinFa" JAVA-ban megírt változata.
+            " http://www.lizard.ws/ " online kalkulátorral számoltam ki az értékeket.
+        </para>
+        <mediaobject>
+            <imageobject>
+                <imagedata fileref="img/ciklo.png" scale="45" />
+            </imageobject>
+            </mediaobject>
+        </section>
+        
+        
+                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                        
+</chapter>               

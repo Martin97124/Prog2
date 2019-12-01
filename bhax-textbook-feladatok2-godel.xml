@@ -1,0 +1,144 @@
+<chapter xmlns="http://docbook.org/ns/docbook" xmlns:xlink="http://www.w3.org/1999/xlink" xmlns:xi="http://www.w3.org/2001/XInclude" version="5.0" xml:lang="hu">
+    <info>
+        <title>Helló, Gödel!</title>
+        <keywordset>
+            <keyword/>
+        </keywordset>
+    </info>
+
+    <section>
+        <title>Gengszterek</title>
+        <para>
+		Gengszterek rendezése lambdával a Robotautó Világbajnokságban
+https://youtu.be/DL6iQwPx1Yw (8:05-től)
+
+        </para>
+
+        <para>
+            Magát az OOCWC ( Robocar World Championship ) műküdését már egyszer leírtuk, de felevelenítve annyi a lényege, hogy ezen a platformon keresztül kutassák a forgalomirányítás algoritmusokat illetve nevéből adodóan a robotautók terjedését is.
+            Ebben a feladatban lambda segítségével kell rendezni benne.
+            C+11 óta használható <function>std::sort()</function> függvényt fogjuk haszálni ennél a feladatnál.
+            Ennek a függvénynek többféle használata létezik, mint például 2 vagy akár 3 paraméteres típusok.
+            Itt a 3 paraméteres függvényt fogjuk alkalmazni :
+        </para>
+        <programlisting language="C++"><![CDATA[
+            std::sort ( gangsters.begin(), gangsters.end(), [this, cop] ( Gangster x, Gangster y )
+            {
+                return dst ( cop, x.to ) < dst ( cop, y.to );
+            } );]]>                  
+            </programlisting>
+            <para>
+                <function>gangsters.begin(), gangsters.end(),</function>, ez lesz az első illetve második paraméter amiből leolvasható, hogy mettől-meddig menjen a rendezés.
+                <function>[this, cop] ( Gangster x, Gangster y)</function>, ez lesz a harmadik paraméter ami a rendezéshez egy függvényt ad meg.
+                Megvizsgálja a "gangsters" tömböt és amennyiben x Gangster közelebb van a cop-hoz, mint y akkor igaz-ként tér vissza a függvény.
+                Amikor végig nézte az egészet eredményül a cop-hoz való legközelebbi gangster-ek lesznek legelől.
+            </para>
+    </section>        
+	    <section>
+        <title>STL map érték szerinti rendezése</title>
+        <para>
+		Például: https://github.com/nbatfai/future/blob/master/cs/F9F2/fenykard.cpp#L180
+
+        </para>
+        <para>
+            Először is az STL fogalmát szereténm tisztázni.
+            Standard Template Library a teljes neve és ezenbelül találhatóak a tárolók.
+            Ebben a feladatban a STL tároló map-ot fogjuk használni.
+            Ezek a map tárolók asszociatív tömbök amelyek kulcs-adat párokat tárolnak.
+            Ahogy a feladat kérte a STL mapot érték szerint kell ebben a feladatban rendezni nem pedig kulcs alapján.
+            Most pedig lássuk a kódunkat :
+        </para>
+        <programlisting language="C++"><![CDATA[
+#include <iostream> 
+#include <map>
+#include <set>
+#include <functional>
+using namespace std;
+int main() { 
+    map<string, int> Map;
+    Map.insert(pair<string, int>("Chelsea", 1));
+    Map.insert(pair<string, int>("Real Madrid", 8));
+    Map.insert(pair<string, int>("Barcelona", 2));
+    Map.insert(pair<string, int>("Manchester United", 7));
+    Map.insert(pair<string, int>("Manchester City", 6));
+    Map.insert(pair<string, int>("Liverpool", 3));
+    Map.insert(pair<string, int>("Tottenham", 9));
+    Map.insert(pair<string, int>("Arsenal", 4));
+    Map.insert(pair<string, int>("Leicester", 5));
+    Map.insert(pair<string, int>("Watford", 10));
+    typedef function<bool(pair<string, int>, pair<string, int>)> Hasonlito;
+    Hasonlito hasonlit =
+        [](pair<string, int> elso ,std::pair<string, int> masodik)
+        {
+            return elso.second < masodik.second;
+        };
+            
+    set<pair<string, int>, Hasonlito> sortedMap(Map.begin(), Map.end(), hasonlit);
+    for (pair<string, int> elem : Map)
+        cout << elem.first << "  " << elem.second << endl;
+	cout << "-------" << endl;
+    	cout << "Rendezés után" << endl;
+	cout << "-------" << endl;
+    for (pair<string, int> elem : sortedMap)
+        cout << elem.first << "  " << elem.second << endl;
+}]]>
+</programlisting>
+    <para>
+        Pár focicsapat felsorolva random kitalált számokkal, ezeket rendezni ez a kód.
+        Láthatjuk, hogy először egy stringet fog kérni aztán pedig egy int-et ami szerint fogja rendezni a mapunkat.
+        Mint ahogy látszik ez után történik meg az összehasonlítás kér pár között.
+        Miután ez megtörtént akkor fogja rendezni a mapunkat.
+        Itt adhatjuk meg, hogy melyik osztály használja a program a rendezéshez illetve a map kezdetét és végét és a hasonlít metódust is.
+        Mikor megtörtént a rendezés nincs más dolgunk, mint szépen kiíratni.
+    </para>
+    <mediaobject>
+            <imageobject>
+                <imagedata fileref="img/map.png" scale="45" />
+            </imageobject>
+            </mediaobject>
+    </section>      
+	    <section>
+        <title>Alternatív Tabella rendezése</title>
+        <para>
+		Mutassuk be a https://progpater.blog.hu/2011/03/11/alternativ_tabella a programban a java.lang
+Interface Comparable T szerepét!
+        </para>
+        <para>
+            Ebben a feladatban egy alternatív tábla rendezést fogunk létrehozni az adott NB1-es bajnokságra.
+            Ez a tábla és a rendes bajnoki tabella között az a különbség, hogy míg a bajnoki tabella pontok alapján rangsorolja a csapatokat addíg a az alternatív megnézni az adott csapattal játszott csapatok rangsorát illetve a meccs kimenetelét és ennek függvényében ad vissza egy értéket.
+            Tehát nem mindegy, hogy valaki az utolsó három csapat ellen nyert vagy az első három ellen.
+            Számos fajtája van ezeknek az alternatív táblázatoknak mint például a PageRank.
+        </para>
+        <programlisting language="java"><![CDATA[
+                class Csapat implements Comparable<Csapat> {
+                    protected String nev;
+                    protected double ertek;
+                  
+                    public Csapat(String nev, double ertek) {
+                      this.nev = nev;
+                      this.ertek = ertek;
+                    }
+                  
+                    public int compareTo(Csapat csapat) {
+                      if (this.ertek < csapat.ertek) {
+                        return -1;
+                      } else if (this.ertek > csapat.ertek) {
+                        return 1;
+                      } else {
+                        return 0;
+                      }
+                    }
+                  }]]>
+            </programlisting>
+            <para>
+                Elsősorban létrehozunk egy "Csapat" osztályt.
+                Ezután olvasva a kódot látszik, hogy ez implementálja a "Comparable" interfészt.
+                Maga az osztály rendelkezni fog névvel illetve értékkel.
+                Még ami kivehető ebből a kódcsipetből a "compareTo"  függvény ami az összehasonlításban játszik szerepet.
+                Az összehasonlítás menete igen egyszerű. 
+                Ha a csapat az adott objektumhoz képest nagyobb akkor mínusz egyet kap, ha kisebb akkor plussz egyet ha pedig ugyanakkora akkor nullát fog kapni.
+                
+            </para>
+    </section>          
+                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                        
+</chapter>                

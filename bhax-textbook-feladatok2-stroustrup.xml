@@ -1,0 +1,270 @@
+<chapter xmlns="http://docbook.org/ns/docbook" xmlns:xlink="http://www.w3.org/1999/xlink" xmlns:xi="http://www.w3.org/2001/XInclude" version="5.0" xml:lang="hu">
+    <info>
+        <title>Helló, Stroustrup!</title>
+        <keywordset>
+            <keyword/>
+        </keywordset>
+    </info>
+
+    <section>
+        <title>String osztály előkészítése</title>
+        <para>
+            Ebben a feladatban egy string osztály kell létrehoznunk.
+            Másoló és mozgató szemantika lelhető még fel itt.
+            Ennek a szemantikának az a lényege, hogy amikor új objektumot hozunk létre és annak értéket adunk akkor a mozgató vagy másoló konstruktór jelenik meg.
+            Viszont ha egy előkészített objektumnak adunk új értéket akkor a mozgató vagy másoló értékadás van jelen.
+            Nézzük is a kódunkat.
+        </para>
+            <programlisting language="C++"><![CDATA[
+#include <iostream>
+#include <cstring>
+#include <algorithm>
+
+using namespace std;
+class mystring
+{
+	char* data;
+	public:
+	char* Data() const {return data;}
+	mystring(const char* p)
+	{
+		cout<<"konstruktor"<<endl;
+		size_t size = strlen(p) + 1;
+		data = new char[size];
+		memcpy(data, p, size);
+	}
+	~mystring()
+	{
+	delete[] data;
+	}
+	mystring(const mystring& regi)
+	{
+		cout<<"másoló konstruktor"<<endl;
+		size_t size = strlen(regi.data) + 1;
+		data = new char[size];
+		memcpy(data, regi.data, size);
+	}
+	mystring& operator=(const mystring& regi)
+	{
+		cout<<"másoló értékadás"<<endl;
+		delete[] data;
+		size_t size = strlen(regi.data) + 1;
+		data = new char[size];
+		memcpy(data, regi.data, size);
+		return *this;
+	}
+	mystring (mystring&& regi )
+	{
+		cout<<"mozgató konstruktor"<<endl;
+		data = regi.data;
+		regi.data = nullptr;
+	}
+	mystring& operator=(mystring&& regi)
+	{
+		cout<<"mozgató értékadás"<<endl;
+		swap(data, regi.data);
+		return *this;
+	}
+
+	char operator[](int i)
+	{
+		size_t size = strlen(data) -1;
+		if( i > size )
+		{
+			cout << "Out of range" <<endl;
+		}
+		return data [i];
+	}
+};
+
+ostream& operator<<(ostream& os,const mystring& x)
+{
+	return os<<x.Data();
+}
+int main()
+{
+	mystring a("szoveg helye");
+	cout<<a[5]<<endl;
+}]]>
+        </programlisting>
+        <para>Itt látható egy operátor túlterhelés. Régebben ezt már kitárgyaltuk így nem írnám le újra.
+              Ahogy utána látszik megnézzük, hogy hol "van távolságon túl" azaz ha nagyobb indexű értéket szeretnénk visszakérni mint amekkora maga a data pointer (*data) akkor sajnos hibát fogunk kapni(Out of range).
+              Viszont ha kisebb akkor egy referenciát dob vissza ami a helyes indexű karakterre mutat.
+              A következő sorokban hasonló szemantikával csak az operátor túlterhelés utána van írva, hogy "const".
+              Ez annyit takar, hogy visszatérési értékként egy másolatot kapunk az i-edik elemről ezálltal nem történik módosítás.
+        </para>
+        <mediaobject>
+            <imageobject>
+                <imagedata fileref="img/String.png" scale="45" />
+            </imageobject>
+            </mediaobject>
+    </section>        
+
+
+    <section>
+        <title>Hibásan implementált RSA törése</title>
+        <para>
+		Készítsünk betű gyakoriság alapú törést egy hibásan implementált RSA kódoló:
+https://arato.inf.unideb.hu/batfai.norbert/UDPROG/deprecated/Prog2_3.pdf (71-73 fólia) által
+készített titkos szövegen.
+        </para>
+        <para>
+            Először az RSA törés fogalmát kéne tisztázni.
+            Az eljárás nyílt kulcsú, titkosító algoritmus, mely 1976-ban látott napvilágot Ron Rivest, Adi Shamir és Len Adleman jóvoltából.
+            Maga az eljárás során van egy nyílt és egy titkosított kulcs. A nyílt kulcshoz mindenki hozzátud férni míg a titkoshoz nevéből adódoan nem és utobbi szükséges a nyílt kulccsal kódolt üzenet "visszafejtésére".
+            Most magát a matematikai hátterét írnám le.
+            Első lépésben választanunk kell két darab prímszámot(minél nagyobb annál biztonságosabb). 
+            Egyik pírmszámot "p"-nek, míg a másikat "q"-nak fogjuk jelőlni.
+            Ezt követően egy képlet segítségével kikell számolni N-t, ahol az N = nyílvános és a titkos kulcs modulusa. ( Modulus méretei : 512, 768, 1024, 2048, 4096 )
+            <emphasis role="strong">N = p*q</emphasis>, két pírmszámot összeszorozva kapjuk meg a modulust.
+            Miután ez megvan kikell számolnunk Euler féle Fí függvény értékét N-re. (Euler féle Fí = Egész számokon értelmezett egész értékű számelméleti függvény )
+            <emphasis role="strong">Fí(N) = (p-1)(q-1)</emphasis>, egyik prímszámból elvéve egyet és a másik prímszámból is elvéve egyet majd ezeket összeszorozva kapjuk meg a Euler féle Fí függvény N értékét.
+            Következő lépésben újra választanunk kell egy egész számot amit "e"-vel fogunk jelölni. ( "e" = nyílvános kulcs kitejőve, nyílvános )
+            Három kritériumnak kell végbe mennie a kiválasztás során : 1. Nagyobbnak kell lennie "e"-nek mint 1 | 2. "e"-nek kisebbnek kell lennie, mint az elöbb kapott Euler féle Fí függvény N értéke. | 3. Az előbb említett N érték és "e"-nek a legnagyobb közös osztójának 1-nek kell lennie.
+            Még egy "d" is kelleni fog amit nem megadni fogunk hanem kikell számítani. ( "d" = titkos kulcs kitejőve, titkos )
+            <emphasis role="strong">d*e</emphasis>kongruencia 1 | <emphasis role="strong">mod Fí(N)</emphasis>
+            Jelenesetben az a lényeg, hogy elosztva a két számot 1-et kapjunk maradékna.
+            A nyílvános kulcs N modulusból illetve "e" kitevőből áll.
+            A titkos kulcs N modulusból illetve "d" kitevőből áll.
+            Fontos megjegyezni, hogy a "p" illetve "q" prímszámokat érdemes titokban tartani, mivel ha ezek kitudódnak onnantól könnyű visszavezetni "d"-re, N megvan, "e" nyílvános tehát az is megvan és innen az elöző képletbe visszahelyettesítve megkaphatjuk egy gyors számolással a "d"-t azaz a titkos kulcs kitevöjét.
+            A kulcsgenerálásához szükséges idő lehet akár eléggé nagy is(percek), ezért ahol jobban számít a gyorsaság sajnos nem annyira alkalmazható.
+            Ha egy RSA kódolás megfelelően gondolkodással van megírva(azaz minél nagyobb a két prímszám szorzata), ezesetben nem lehetetlen a feltörés viszont eléggé sok időben telik.
+            Nincs bizonyítva, hogy nem létezhet kellő gyorsaságú algoritmus erre a probléma megoldásra viszont jelenleg még nem ismert ez.
+            Összefoglalva az RSA algoritmus széles körben terjedt el akár elektronikus kereskedelmi protokollokban akár máshol és igen hasznos illetve biztonságos tud lenni, viszont matematikailag nem bizonyított, hogy feltörhetetlen.
+            Most pedig nézzük meg a kódot.
+        </para>
+        <programlisting language="Java"><![CDATA[
+public class RSA{
+	public static void main(String[] args)
+	{ 	
+        int meretBitekben = (int) (700 * (int) (java.lang.Math.log( (double) 10)) / java.lang.Math.log((double) 2));
+		System.out.println("Méret bitekben: ");
+		System.out.println(meretBitekben);
+		java.math.BigInteger p_i = new java.math.BigInteger(meretBitekben, 100, new java.util.Random() );
+		System.out.println("p_i");
+		System.out.println(p_i);
+		System.out.println("p_i hexa");
+		System.out.println(p_i.toString(16));
+		java.math.BigInteger q_i = new java.math.BigInteger(meretBitekben, 100, new java.util.Random() );
+		System.out.println("q_i");
+		System.out.println(q_i);
+		java.math.BigInteger m_i =p_i.multiply(q_i);
+		System.out.println("m_i");
+		System.out.println(m_i);
+		java.math.BigInteger z_i = p_i.subtract(java.math.BigInteger.ONE).multiply(q_i.subtract(java.math.BigInteger.ONE));
+		System.out.println("z_i");
+		System.out.println(z_i);
+		java.math.BigInteger d_i;
+		do {
+			do {
+				d_i = new java.math.BigInteger(meretBitekben, new java.util.Random());
+			} while(d_i.equals(java.math.BigInteger.ONE));
+		} while(!z_i.gcd(d_i).equals(java.math.BigInteger.ONE));		
+		System.out.println("d_i");
+		System.out.println(d_i);
+		java.math.BigInteger e_i = d_i.modInverse(z_i);
+		System.out.println("e_i");
+		System.out.println(e_i);
+	}
+}]]>
+</programlisting>
+    <para>
+        Itt jönnek létre a kulcsok amik hibásan vannak implementálva.
+    </para>
+    <programlisting language="java"><![CDATA[
+    class KulcsPar {
+        java.math.BigInteger d, e, m;
+        
+        public KulcsPar() {
+            int meretBitekben = 700 * (int) (java.lang.Math.log((double) 10) 
+                    / java.lang.Math.log((double) 2));
+            
+            java.math.BigInteger p =
+                    new java.math.BigInteger(meretBitekben, 100, new java.util.Random());
+            java.math.BigInteger q =
+                    new java.math.BigInteger(meretBitekben, 100, new java.util.Random());
+        
+            m = p.multiply(q);
+            
+            java.math.BigInteger z = p.subtract(java.math.BigInteger.ONE).
+                    multiply(q.subtract(java.math.BigInteger.ONE));
+            
+            do {
+                
+                do {
+                    d = new java.math.BigInteger(meretBitekben, new java.util.Random());
+                } while (d.equals(java.math.BigInteger.ONE));
+            
+            } while (!z.gcd(d).equals(java.math.BigInteger.ONE));
+            
+            e = d.modInverse(z);
+        
+        }
+        
+    }]]>
+            </programlisting>
+            <para>
+                "BigInteger" nevéből adódóan ahoz kell, hogy minél nagyobb számokkal tudjunk számolni(ezálltal hatékonyabban is).
+                Itt lászik, hogy a m(modulus) értékét úgy kapjuk meg, hogy a p és a q prímszámokat összeszorozzuk.
+                Megfigyelhető, hogy itt kapjuk még meg a kitevőt illetve annak az inverzét is.
+            </para>
+            <programlisting language="java"><![CDATA[
+            public class RSAPelda {
+                public static void main(String[] args){
+                    
+                    KulcsPar jSzereplo = new KulcsPar();
+                    
+                    String tisztaSzoveg = "Szia, Martin!";
+                    
+                    //kódol
+                    byte[] buffer = tisztaSzoveg.getBytes();
+                    java.math.BigInteger[] titkos = new java.math.BigInteger[buffer.length];
+                    
+                    for (int i = 0; i < titkos.length; ++i){
+                        titkos[i] = new java.math.BigInteger(new byte[] {buffer[i]});
+                        titkos[i] = titkos[i].modPow(jSzereplo.e, jSzereplo.m);
+                    }
+                    
+                    //dekódol
+                    for (int i = 0; i < titkos.length; ++i){
+                        titkos[i] = titkos[i].modPow(jSzereplo.d, jSzereplo.m);
+                        buffer[i] = titkos[i].byteValue();
+                    }
+                    
+                    System.out.println(new String (buffer));
+                }
+                
+            }]]>
+            </programlisting>
+            <para>
+                Itt végződik el a kódolás illetve a dekódolás is.
+                "modPow" függvény abban segít nekünk, hogy megadja a hatványkitevőt és a modulust. 
+            </para>
+            
+            <mediaobject>
+            <imageobject>
+                <imagedata fileref="img/RSA1.png" scale="40" />
+            </imageobject>
+            </mediaobject>
+            
+            <mediaobject>
+            <imageobject>
+                <imagedata fileref="img/RSA2.png" scale="40" />
+            </imageobject>
+            </mediaobject>
+    </section>        
+
+
+    <section>
+        <title>Összefoglaló</title>
+        <para>
+		Az előző 4 feladat egyikéről írj egy 1 oldalas bemutató „”esszé szöveget!
+        </para>
+        <para>
+            Ezt a feladatot összefűztem az "Hibásan implementált RSA törése" feladattal.
+        </para>
+    </section>        
+   
+        
+                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                        
+</chapter>                

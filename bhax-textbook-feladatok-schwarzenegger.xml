@@ -1,0 +1,61 @@
+<chapter xmlns="http://docbook.org/ns/docbook" xmlns:xlink="http://www.w3.org/1999/xlink" xmlns:xi="http://www.w3.org/2001/XInclude" version="5.0" xml:lang="hu">
+    <info>
+        <title>Helló, Schwarzenegger!</title>
+        <keywordset>
+            <keyword/>
+        </keywordset>
+    </info>
+    <section>
+        <title>Szoftmax Py MNIST</title>
+        <para>
+            Python
+        </para>
+        <para>
+            Megoldás videó: <link xlink:href="https://youtu.be/j7f9SkJR3oc">https://youtu.be/j7f9SkJR3oc</link>      
+        </para>
+
+<para>
+	A megoldás forrása <link xlink:href="https://progpater.blog.hu/2016/11/13/hello_samu_a_tensorflow-bol">Bátfai Norbert</link> tulajdona.    
+</para>
+        <para>
+	A szoftver lényege, hogy kézzel írott számjegyeket ismerjen fel a számítógép. Mesterséges inteligencia. Ebben azt esetben MNIST adatbázisból vett számjegyeket fogunk felismertetni vele. Mivel most használjuk először a "Python-t" és a "TensorFlow-t" ezért ezt most telepítenünk kell. Maga  "TensorFlow" nagyon hasznos program, sok nagyobb cég is nem hiába használja. Maga a gépi tanulásban játszik fontos szerepet. Jelen esetben ezt a kód csípetet nevezhetjük a "TensorFlow" Hello Worldjének. Ez az első programunk célja, hogy összeszorozzon két számot neurális hálokk felhasználásával. Mivel most kezdjük a Python használatát érdemes tudni, hogy nem "{" és "}" adják meg a blokkokat hanem tabulárotoros behúzások.
+
+            </para>        
+                
+                
+      
+    </section>        
+
+
+    <section>
+        <title>Mély MNIST</title>
+        <para>
+            Python            
+        </para>
+        <para>
+            Megoldás videó:
+        </para>
+        <para>
+            1. passzolási lehetősségem (előadás)                
+        </para>
+    </section>        
+
+                  
+    <section>
+        <title>Minecraft-MALMÖ</title>
+        <para>
+            Megoldás videó: <link xlink:href="https://youtu.be/bAPSu3Rndi8">https://youtu.be/bAPSu3Rndi8</link>   
+        </para>
+        <para>
+            Megoldás forrása: <link xlink:href="https://bhaxor.blog.hu/2018/10/28/minecraft_steve_szemuvege">https://bhaxor.blog.hu/2018/10/28/minecraft_steve_szemuvege</link>   
+        </para> 
+        <para>
+            2. passzolási lehetősségem (előadás)
+        </para>
+
+        
+    </section>        
+                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                              
+</chapter>
+
+
